@@ -1,6 +1,7 @@
 # MOEX News Parser
 
-This repository contains a simple parser that retrieves news from [nsddata.ru](https://nsddata.ru/ru/news) and posts updates to a Telegram channel.
+This repository contains a simple parser that retrieves news from
+[nsddata.ru](https://nsddata.ru/ru/news) and posts updates to a Telegram channel.
 
 The parser filters news items by keywords `DVCA`, `INTR` and `REDM` and publishes matching events.
 
@@ -30,7 +31,8 @@ To change the keywords, pass them with `--keyword`:
 python scripts/parse_nsd_news.py --keyword dvca --keyword intr
 ```
 
-The script remembers the last processed news ID in `news_state.json` to avoid sending duplicates.
+The script remembers the last processed news ID in `news_state.json` to avoid
+sending duplicates.
 
 Each message is formatted like:
 
@@ -50,5 +52,6 @@ To confirm that the Telegram token is available in the environment run:
 python - <<'PY'
 import os
 print("TOKEN_PRESENT", bool(os.getenv("TELEGRAM_BOT_TOKEN")))
+print("CHAT_PRESENT", bool(os.getenv("TELEGRAM_CHAT_ID")))
 PY
 ```

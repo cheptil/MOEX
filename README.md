@@ -32,6 +32,16 @@ python scripts/parse_nsd_news.py --keyword dvca --keyword intr
 
 The script remembers the last processed news ID in `news_state.json` to avoid sending duplicates.
 
+Each message is formatted like:
+
+```
+💰 Дивиденды (DVCA)
+📅 Дата: 28.06.2025
+📋 Описание: Об отмене корпоративного действия "Выплата дивидендов в виде денежных средств" с ценными бумагами эмитента ПАО "ФосАгро" ИНН 7736216869
+🏢 ИНН: 7736216869
+📊 ISIN: RU000A0JRKT8
+```
+
 ## Quick test
 
 To confirm that the Telegram token is available in the environment run:

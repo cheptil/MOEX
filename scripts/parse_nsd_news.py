@@ -13,6 +13,13 @@ URL = "https://nsddata.ru/ru/news"
 STATE_FILE = Path(__file__).with_name("news_state.json")
 DEFAULT_KEYWORDS = ["dvca", "intr", "redm"]
 
+# Mapping of corporate action codes to Russian names and emojis
+CA_MAP = {
+    "dvca": ("Дивиденды", "\U0001F4B0"),
+    "intr": ("Купон", "\U0001F4C8"),
+    "redm": ("Погашение", "\U0001F4C9"),
+}
+
 
 def fetch_page() -> str:
     """Return the HTML of the NSD news page."""
@@ -58,6 +65,27 @@ def save_state(last_id: int) -> None:
         json.dump({"last_id": last_id}, f)
 
 
+def format_message(date: str, text: str, link: str) -> str:
+    """Return a formatted Telegram message."""
+    ca_match = re.match(r"\(([^)]+)\)\s*\(([^)]+)\)\s*(.+)", text)
+    abbr = ca_match.group(1) if ca_match else ""
+    descr = ca_match.group(3) if ca_match else text
+    abbr_lower = abbr.lower()
+    name, emoji = CA_MAP.get(abbr_lower, (abbr, "\U0001F4CB"))
+    inn_match = re.search(r"\b(\d{10}|\d{12})\b", text)
+    inn = inn_match.group(1) if inn_match else "-"
+    isin_match = re.search(r"\b[A-Z0-9]{12}\b", text)
+    isin = isin_match.group(0) if isin_match else "-"
+    return (
+        f"{emoji} {name} ({abbr})\n"
+        f"\U0001F4C5 Дата: {date}\n"
+        f"\U0001F4CB Описание: {descr}\n"
+        f"\U0001F3E2 ИНН: {inn}\n"
+        f"\U0001F4CA ISIN: {isin}\n"
+        f"{link}"
+    )
+
+
 def send_telegram(text: str) -> None:
     """Send *text* to the configured Telegram chat."""
     token = os.environ.get("TELEGRAM_BOT_TOKEN")
@@ -80,7 +108,7 @@ def main(keywords: Iterable[str] = DEFAULT_KEYWORDS) -> None:
     new_last_id = last_id
     for news_id, date, text, link in sorted(news, key=lambda x: x[0]):
         if news_id > last_id:
-            message = f"{date} - {text}\n{link}"
+            message = format_message(date, text, link)
             send_telegram(message)
             if news_id > new_last_id:
                 new_last_id = news_id
